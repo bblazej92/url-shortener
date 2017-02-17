@@ -1,0 +1,13 @@
+version: '2.0'
+services:
+  url-shortener:
+    environment:
+      - LC_ALL=C.UTF-8
+      - LANG=C.UTF-8
+    build: url-shortener/
+    working_dir: "/home/url-shortener"
+    command: bash -c "python run.py --port 5000"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ~/sources/url-shortener:/home/url-shortener
