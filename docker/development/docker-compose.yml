@@ -6,8 +6,12 @@ services:
       - LANG=C.UTF-8
     build: url-shortener/
     working_dir: "/home/url-shortener"
-    command: bash -c "python run.py --port 5000"
+    command: bash -c "python run.py --port 5000 -c development"
     ports:
       - "5000:5000"
     volumes:
       - ~/sources/url-shortener:/home/url-shortener
+    links:
+      - db
+  db:
+    image: mongo

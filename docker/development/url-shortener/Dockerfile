@@ -11,3 +11,4 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN python3.5 -m pip install -U pip
 RUN python3.5 -m pip install click==6.7
 RUN python3.5 -m pip install Flask==0.12
+RUN python3.5 -m pip install flask-mongoengine==0.9.2
