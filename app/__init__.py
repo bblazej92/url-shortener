@@ -1,5 +1,5 @@
 from flask import Flask
-from flask.ext.login import LoginManager
+from flask_login import LoginManager
 from flask_mongoengine import MongoEngine
 from config import config
 

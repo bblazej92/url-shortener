@@ -26,7 +26,6 @@ class TestRegisterUrlSchema(unittest.TestCase):
         data = {
             'destination_url': 'http://test.pl?{}=1'.format(''.join('a' * 490))
         }
-        print(data)
         with self.assertRaises(RESTValidationException) as exception_cm:
             RegisterUrlSchema().load(data)
 
