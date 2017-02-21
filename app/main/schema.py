@@ -9,9 +9,9 @@ class RegisterUrlSchema(ViewBaseSchema):
 
     ALLOWED_SPECIAL_CHARACTERS = ['_', '\-']
 
-    destination_url = fields.Url(
+    original_url = fields.Url(
         required=True,
-        validate=Length(max=500, error='destination_url can have maximum 500 characters')
+        validate=Length(max=500, error='original_url can have maximum 500 characters')
     )
     slug = fields.String(
         validate=[
