@@ -14,3 +14,5 @@ RUN python3.5 -m pip install Flask==0.12
 RUN python3.5 -m pip install flask-mongoengine==0.9.2
 RUN python3.5 -m pip install marshmallow==2.13.0
 RUN python3.5 -m pip install ujson==1.35
+RUN python3.5 -m pip install rauth==0.7.3
+RUN python3.5 -m pip install Flask-Login==0.4.0

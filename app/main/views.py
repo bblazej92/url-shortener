@@ -11,6 +11,11 @@ from werkzeug.exceptions import NotFound, InternalServerError
 log = logging.getLogger(__name__)
 
 
+@main.route('/')
+def index():
+    return 'Welcome on url-shortener!'
+
+
 @main.route('/register_url', methods=['POST'])
 def register_url():
     """

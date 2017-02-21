@@ -6,6 +6,13 @@ class Config:
 class DevelopmentConfig(Config):
     URL_PREFIX = 'localhost:5000'
     DEBUG = True
+    SECRET_KEY = 'development_is_secret!'
+    OAUTH_CREDENTIALS = {
+        'facebook': {
+            'id': '1758312601153697',
+            'secret': '97178dc5fdb2425a11f93118bdf88227'
+        }
+    }
 
 
 class TestingConfig(Config):
