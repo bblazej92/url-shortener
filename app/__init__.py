@@ -5,6 +5,7 @@ from config import config
 
 db = MongoEngine()
 lm = LoginManager()
+lm.login_view = 'auth.oauth_authorize'
 
 
 def create_app(config_name):

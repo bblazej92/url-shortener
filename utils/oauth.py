@@ -21,7 +21,7 @@ class FacebookSignIn:
         return redirect(self.service.get_authorize_url(
             scope='email',
             response_type='code',
-            redirect_uri=url_for('auth.oauth_callback', _external=True)
+            redirect_uri=url_for('auth.oauth_callback', next=request.args.get('next'), _external=True)
         ))
 
     def callback(self):
@@ -31,7 +31,7 @@ class FacebookSignIn:
             data={
                 'code': request.args['code'],
                 'grant_type': 'authorization_code',
-                'redirect_uri': url_for('auth.oauth_callback', _external=True)
+                'redirect_uri': url_for('auth.oauth_callback', next=request.args.get('next'), _external=True)
             }
         )
         me = oauth_session.get('me?fields=id,email').json()

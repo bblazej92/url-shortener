@@ -4,6 +4,7 @@ from app.main import main
 from app.main.schema import RegisterUrlSchema
 from app.models import ShortLink
 from flask import jsonify, request, logging, current_app as app
+from flask.ext.login import current_user, login_required
 from utils.converters import hex_to_base64
 from utils.exceptions import SlugAlreadyExistsException
 from werkzeug.exceptions import NotFound, InternalServerError

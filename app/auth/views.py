@@ -1,11 +1,10 @@
 from app import lm
 from app.auth import auth
 from app.models import User
-from flask import flash, url_for
-from flask import logging
-from flask.ext.login import current_user, login_user
-from flask.ext.login import logout_user
+from flask import flash, url_for, logging, request
+from flask.ext.login import current_user, login_user, logout_user
 from utils.oauth import FacebookSignIn
+from utils.security import get_redirect_target
 from werkzeug.utils import redirect
 
 
@@ -13,8 +12,8 @@ log = logging.getLogger(__name__)
 
 
 @lm.user_loader
-def load_user(id):
-    return User.objects(id=id)[0]
+def load_user(user_id):
+    return User.objects(id=user_id).first()
 
 
 @auth.route('/oauth/logout')
@@ -45,4 +44,5 @@ def oauth_callback():
         user = User(social_id=social_id, username=username, email=email)
         user.save()
     login_user(user, True)
-    return redirect(url_for('main.index'))
+    redirect_target = get_redirect_target()
+    return redirect(redirect_target or url_for('main.index'))
