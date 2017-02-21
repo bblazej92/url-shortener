@@ -1,4 +1,6 @@
 from marshmallow import fields
+from marshmallow import post_dump
+from marshmallow import post_load
 from marshmallow import validate
 from marshmallow.validate import Length
 
@@ -22,3 +24,10 @@ class RegisterUrlSchema(ViewBaseSchema):
             )
         ]
     )
+
+
+class ShortLinkSchema(ViewBaseSchema):
+    original_url = fields.Url(required=True)
+    slug = fields.Str(required=True)
+    created = fields.DateTime()
+    access_counter = fields.Int()

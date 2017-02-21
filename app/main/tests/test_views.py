@@ -22,7 +22,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     @patch('app.main.views.hex_to_base64')
-    def test_if_only_original_url_specified(self, hex_to_base64_mock,):
+    def test_when_only_original_url_specified(self, hex_to_base64_mock,):
         hex_to_base64_mock.return_value = 'mock_slug'
 
         url_data = dict(original_url='http://destination.pl')
@@ -40,10 +40,10 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertEqual(short_link.slug, 'mock_slug')
         self.assertEqual(short_link.user_id, str(self.user.id))
         self.assertEqual(short_link.access_counter, 0)
-        self.assertEqual(short_link.id.generation_time, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
+        self.assertEqual(short_link.created, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
-    def test_if_unique_slug_specified(self):
+    def test_when_unique_slug_specified(self):
         url_data = dict(original_url='http://destination.pl', slug='test_slug')
 
         response = self.client.post('/register_url', data=url_data)
@@ -59,9 +59,9 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertEqual(short_link.slug, 'test_slug')
         self.assertEqual(short_link.user_id, str(self.user.id))
         self.assertEqual(short_link.access_counter, 0)
-        self.assertEqual(short_link.id.generation_time, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
+        self.assertEqual(short_link.created, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
 
-    def test_if_non_unique_slug_specified(self):
+    def test_when_non_unique_slug_specified(self):
         new_user = User()
         new_user.save()
         ShortLink(original_url='http://test.pl', slug='test_slug', user_id=str(new_user.id)).save()
@@ -88,14 +88,14 @@ class TestGetUrlFunctional(ViewFunctionalTest):
         super(TestGetUrlFunctional, self).setUp()
         patch('app.main.views.log').start()
 
-    def test_if_slug_not_in_db(self):
+    def test_when_slug_not_in_db(self):
         slug = 'test'
 
         response = self.client.get('/{}'.format(slug))
 
         self.assertEqual(response.status_code, 404)
 
-    def test_if_slug_in_db(self):
+    def test_when_slug_in_db(self):
         slug = 'test'
         ShortLink(original_url='http://test.pl', slug=slug).save()
 
@@ -104,7 +104,7 @@ class TestGetUrlFunctional(ViewFunctionalTest):
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json, dict(original_url='http://test.pl'))
 
-    def test_if_duplicated_slug_in_db(self):
+    def test_when_duplicated_slug_in_db(self):
         slug = 'test'
         ShortLink(original_url='http://test.pl', slug=slug).save()
         ShortLink(original_url='http://test2.pl', slug=slug).save()
@@ -124,14 +124,14 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
         with self.client.session_transaction() as session:
             session['user_id'] = str(self.user.id)
 
-    def test_if_slug_not_in_db(self):
+    def test_when_slug_not_in_db(self):
         slug = 'test'
 
         response = self.client.get('/url_info/{}'.format(slug))
 
         self.assertEqual(response.status_code, 404)
 
-    def test_if_duplicated_slug_in_db(self):
+    def test_when_duplicated_slug_in_db(self):
         slug = 'test'
         ShortLink(original_url='http://test.pl', slug=slug, user_id=str(self.user.id)).save()
         ShortLink(original_url='http://test2.pl', slug=slug, user_id=str(self.user.id)).save()
@@ -140,7 +140,7 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
 
         self.assertEqual(response.status_code, 500)
 
-    def test_if_slug_in_db_but_other_user_is_slug_owner(self):
+    def test_when_slug_in_db_but_other_user_is_slug_owner(self):
         other_user = User()
         other_user.save()
         slug = 'test'
@@ -151,7 +151,7 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
         self.assertEqual(response.status_code, 401)
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
-    def test_if_slug_in_db_and_user_is_its_owner(self):
+    def test_when_slug_in_db_and_user_is_its_owner(self):
         slug = 'test'
         ShortLink(
             original_url='http://test.pl',
@@ -167,7 +167,8 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
             response.json,
             dict(
                 original_url='http://test.pl',
-                created=datetime.datetime(2017, 2, 1, 12, 0, 0, tzinfo=tzutc())
+                created=datetime.datetime(2017, 2, 1, 12, 0, 0, tzinfo=tzutc()),
+                access_counter=0
             )
         )
 
@@ -181,3 +182,64 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
 
         short_link = ShortLink.objects.get(slug=slug)
         self.assertEqual(short_link.access_counter, 2)
+
+
+class TestGetListOfUserUrlsFunctional(ViewFunctionalTest):
+
+    def setUp(self):
+        super(TestGetListOfUserUrlsFunctional, self).setUp()
+        patch('app.main.views.log').start()
+        self.user = User()
+        self.user.save()
+        with self.client.session_transaction() as session:
+            session['user_id'] = str(self.user.id)
+
+    def test_when_user_has_no_url_created(self):
+        response = self.client.get('/list_urls')
+
+        self.assertEqual(response.json, {'URLs': []})
+
+    @freezegun.freeze_time('2017-02-01T12:00:00')
+    def test_when_user_has_one_url_created(self):
+        ShortLink(original_url='http://test.pl', slug='test', user_id=str(self.user.id)).save()
+
+        response = self.client.get('/list_urls')
+
+        self.assertEqual(
+            response.json,
+            {
+                'URLs': [{
+                    'slug': 'test',
+                    'original_url': 'http://test.pl',
+                    'created': '2017-02-01T12:00:00+00:00',
+                    'access_counter': 0
+                }]
+            }
+        )
+
+    @freezegun.freeze_time('2017-02-01T12:00:00')
+    def test_when_user_has_many_urls_created(self):
+        ShortLink(original_url='http://test.pl', slug='test', user_id=str(self.user.id)).save()
+        ShortLink(original_url='http://test2.pl', slug='test2', user_id=str(self.user.id)).save()
+
+        response = self.client.get('/list_urls')
+
+        self.assertEqual(
+            response.json,
+            {
+                'URLs': [
+                    {
+                        'slug': 'test',
+                        'original_url': 'http://test.pl',
+                        'created': '2017-02-01T12:00:00+00:00',
+                        'access_counter': 0
+                    },
+                    {
+                        'slug': 'test2',
+                        'original_url': 'http://test2.pl',
+                        'created': '2017-02-01T12:00:00+00:00',
+                        'access_counter': 0
+                    }
+                ]
+            }
+        )

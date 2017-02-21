@@ -1,7 +1,7 @@
 import datetime
 
 from app.main import main
-from app.main.schema import RegisterUrlSchema
+from app.main.schema import RegisterUrlSchema, ShortLinkSchema
 from app.models import ShortLink
 from flask import jsonify, request, logging, current_app as app
 from flask_login import current_user, login_required
@@ -67,13 +67,17 @@ def get_url_info(slug):
         short_link = ShortLink.objects.get(slug=slug)
         if short_link.user_id != str(current_user.id):
             raise Unauthorized()
-        return jsonify({
-            'original_url': short_link.original_url,
-            'created': short_link.id.generation_time
-        })
+        return jsonify(ShortLinkSchema(exclude=('slug',)).dump(short_link).data)
     except DoesNotExist as e:
         log.error(e)
         raise NotFound()
     except MultipleObjectsReturned as e:
         log.error(e)
         raise InternalServerError()
+
+
+@main.route('/list_urls', methods=['GET'])
+@login_required
+def get_list_of_user_urls():
+    short_links = ShortLink.objects(user_id=str(current_user.id))
+    return jsonify({'URLs': ShortLinkSchema(many=True).dump(short_links).data})

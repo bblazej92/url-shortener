@@ -9,6 +9,10 @@ class ShortLink(db.Document):
     user_id = db.StringField()
     access_counter = db.IntField(default=0)
 
+    @property
+    def created(self):
+        return self.id.generation_time
+
 
 class User(UserMixin, db.Document):
     username = db.StringField(max_length=30)

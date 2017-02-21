@@ -10,7 +10,7 @@ class TestRegisterUrlSchema(unittest.TestCase):
     def setUp(self):
         patch('utils.schema.base.log').start()
 
-    def test_raises_if_original_url_missing(self):
+    def test_raises_when_original_url_missing(self):
         data = {}
         with self.assertRaises(RESTValidationException) as exception_cm:
             RegisterUrlSchema().load(data)
@@ -22,7 +22,7 @@ class TestRegisterUrlSchema(unittest.TestCase):
             }
         )
 
-    def test_raises_if_original_url_is_too_long(self):
+    def test_raises_when_original_url_is_too_long(self):
         data = {
             'original_url': 'http://test.pl?{}=1'.format(''.join('a' * 490))
         }
@@ -36,7 +36,7 @@ class TestRegisterUrlSchema(unittest.TestCase):
             }
         )
 
-    def test_raises_if_slug_is_empty(self):
+    def test_raises_when_slug_is_empty(self):
         data = {
             'slug': '',
             'original_url': 'http://test.pl'
@@ -51,7 +51,7 @@ class TestRegisterUrlSchema(unittest.TestCase):
             }
         )
 
-    def test_raises_if_slug_is_too_long(self):
+    def test_raises_when_slug_is_too_long(self):
         data = {
             'slug': 31 * 'a',
             'original_url': 'http://test.pl'
@@ -66,7 +66,7 @@ class TestRegisterUrlSchema(unittest.TestCase):
             }
         )
 
-    def test_raises_if_slug_contains_forbidden_special_characters(self):
+    def test_raises_when_slug_contains_forbidden_special_characters(self):
         data = {
             'slug': 'te$t',
             'original_url': 'http://test.pl'
