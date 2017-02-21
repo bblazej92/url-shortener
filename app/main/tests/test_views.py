@@ -39,7 +39,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertEqual(short_link.original_url, 'http://destination.pl')
         self.assertEqual(short_link.slug, 'mock_slug')
         self.assertEqual(short_link.user_id, str(self.user.id))
-        self.assertEqual(short_link.created, datetime.datetime(2017, 2, 1, 12, 0))
+        self.assertEqual(short_link.id.generation_time, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     def test_if_unique_slug_specified(self):
@@ -57,7 +57,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertEqual(short_link.original_url, 'http://destination.pl')
         self.assertEqual(short_link.slug, 'test_slug')
         self.assertEqual(short_link.user_id, str(self.user.id))
-        self.assertEqual(short_link.created, datetime.datetime(2017, 2, 1, 12, 0))
+        self.assertEqual(short_link.id.generation_time, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
 
     def test_if_non_unique_slug_specified(self):
         new_user = User()
@@ -155,7 +155,6 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
             original_url='http://test.pl',
             slug=slug,
             user_id=str(self.user.id),
-            created=datetime.datetime(2017, 2, 1)
         ).save()
 
         response = self.client.get('/url_info/{}'.format(slug))

@@ -25,7 +25,6 @@ def register_url():
     :return: Short url which redirects to specified original_url
     """
     url_data = RegisterUrlSchema().load(request.get_json()).data
-    url_data['created'] = datetime.datetime.now()
     url_data['user_id'] = str(current_user.id)
     link = ShortLink(**url_data)
 
