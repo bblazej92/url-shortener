@@ -47,13 +47,17 @@ def register_url():
 
 @main.route('/<slug>', methods=['GET'])
 def get_url(slug):
-    # TODO: use objects.get() instead
-    short_links = ShortLink.objects(slug=slug)
-    if len(short_links) >= 2:
-        raise InternalServerError()
-    if not short_links:
+    try:
+        short_link = ShortLink.objects.get(slug=slug)
+        short_link.access_counter += 1
+        short_link.save()
+        return jsonify(dict(original_url=short_link.original_url))
+    except DoesNotExist as e:
+        log.error(e)
         raise NotFound()
-    return jsonify(dict(original_url=short_links[0].original_url))
+    except MultipleObjectsReturned as e:
+        log.error(e)
+        raise InternalServerError()
 
 
 @main.route('/url_info/<slug>', methods=['GET'])

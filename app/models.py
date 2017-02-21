@@ -7,6 +7,7 @@ class ShortLink(db.Document):
     slug = db.StringField(max_length=30)
     original_url = db.URLField(max_length=500)
     user_id = db.StringField()
+    access_counter = db.IntField(default=0)
 
 
 class User(UserMixin, db.Document):

@@ -8,7 +8,7 @@ from dateutil.tz import tzutc
 from utils.testing import ViewFunctionalTest
 
 
-# TODO: test that schema is called
+# TODO: test that schema is called and login is required
 
 class TestRegisterUrlFunctional(ViewFunctionalTest):
 
@@ -39,6 +39,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertEqual(short_link.original_url, 'http://destination.pl')
         self.assertEqual(short_link.slug, 'mock_slug')
         self.assertEqual(short_link.user_id, str(self.user.id))
+        self.assertEqual(short_link.access_counter, 0)
         self.assertEqual(short_link.id.generation_time, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
@@ -57,6 +58,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertEqual(short_link.original_url, 'http://destination.pl')
         self.assertEqual(short_link.slug, 'test_slug')
         self.assertEqual(short_link.user_id, str(self.user.id))
+        self.assertEqual(short_link.access_counter, 0)
         self.assertEqual(short_link.id.generation_time, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
 
     def test_if_non_unique_slug_specified(self):
@@ -168,3 +170,14 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
                 created=datetime.datetime(2017, 2, 1, 12, 0, 0, tzinfo=tzutc())
             )
         )
+
+    def test_access_counter_increases(self):
+        slug = 'test'
+        url_data = dict(original_url='http://destination.pl', slug=slug)
+
+        self.client.post('/register_url', data=url_data)
+        self.client.get('/{}'.format(slug))
+        self.client.get('/{}'.format(slug))
+
+        short_link = ShortLink.objects.get(slug=slug)
+        self.assertEqual(short_link.access_counter, 2)
