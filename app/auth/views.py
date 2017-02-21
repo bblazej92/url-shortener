@@ -1,7 +1,7 @@
 from app import lm
 from app.auth import auth
 from app.models import User
-from flask import flash, url_for, logging, request
+from flask import flash, url_for, logging
 from flask.ext.login import current_user, login_user, logout_user
 from utils.oauth import FacebookSignIn
 from utils.security import get_redirect_target

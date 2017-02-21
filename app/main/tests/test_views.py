@@ -2,7 +2,7 @@ import datetime
 from unittest.mock import patch
 
 import freezegun
-from app.models import ShortLink
+from app.models import ShortLink, User
 from utils.testing import ViewFunctionalTest
 
 
@@ -13,11 +13,16 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
     def setUp(self):
         super(TestRegisterUrlFunctional, self).setUp()
         patch('app.main.views.log').start()
+        self.user = User()
+        self.user.save()
+        with self.client.session_transaction() as session:
+            session['user_id'] = str(self.user.id)
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     @patch('app.main.views.hex_to_base64')
-    def test_if_only_destination_url_specified(self, hex_to_base64_mock):
+    def test_if_only_destination_url_specified(self, hex_to_base64_mock,):
         hex_to_base64_mock.return_value = 'mock_slug'
+
         url_data = dict(destination_url='http://destination.pl')
 
         response = self.client.post('/register_url', data=url_data)
@@ -31,6 +36,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         short_link = short_links[0]
         self.assertEqual(short_link['destination_url'], 'http://destination.pl')
         self.assertEqual(short_link['slug'], 'mock_slug')
+        self.assertEqual(short_link['user_id'], str(self.user.id))
         self.assertEqual(short_link['created'], datetime.datetime(2017, 2, 1, 12, 0))
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
@@ -48,10 +54,13 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         short_link = short_links[0]
         self.assertEqual(short_link['destination_url'], 'http://destination.pl')
         self.assertEqual(short_link['slug'], 'test_slug')
+        self.assertEqual(short_link['user_id'], str(self.user.id))
         self.assertEqual(short_link['created'], datetime.datetime(2017, 2, 1, 12, 0))
 
     def test_if_non_unique_slug_specified(self):
-        ShortLink(destination_url='http://test.pl', slug='test_slug').save()
+        new_user = User()
+        new_user.save()
+        ShortLink(destination_url='http://test.pl', slug='test_slug', user_id=str(new_user.id)).save()
         url_data = dict(destination_url='http://destination.pl', slug='test_slug')
 
         response = self.client.post('/register_url', data=url_data)
@@ -61,6 +70,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertEqual(len(short_links), 1)
         short_link = short_links[0]
         self.assertEqual(short_link['destination_url'], 'http://test.pl')
+        self.assertEqual(short_link['user_id'], str(new_user.id))
         self.assertEqual(short_link['slug'], 'test_slug')
 
     def test_if_slug_generated_from_object_id_was_added_as_custom_slug_earlier(self):

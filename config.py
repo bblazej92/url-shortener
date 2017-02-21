@@ -19,6 +19,8 @@ class TestingConfig(Config):
     URL_PREFIX = 'http://test.pl'
     MONGODB_HOST = 'localhost'
     MONGODB_DB = 'test'
+    SECRET_KEY = 'testing_is_secret!'
+    LOGIN_DISABLED = True
     testing = True
 
 
