@@ -22,13 +22,17 @@ When user specify own slug (service requirements 2) we check if it already exist
 ## ENDPOINTS:
 
 1&2 --> /register_url
+
 3   --> /<slug>
+
 4   --> /url_info/<slug>
+
 5   --> /list_urls
 
 ## HOW IS PROJECT ORGANIZED:
 
 url-shortener:
+
 --> app
 - auth - views enabling OAuth2.0 authorization using Facebook
 - main - views, schema and tests of core part of service
@@ -55,11 +59,16 @@ Sharding mongodb to many machines and adding caching layer on servers.
 
 
 Ad 1 --> Caching layer and indexing mongodb
+
 Ad 2 --> Mongodb has built in sharding which works well
+
 Ad 3 --> Auto-scale number of backend servers which handle traffic + have caching layer for fast responses
+
 Ad 4 --> Using algorithm described in SOLUTION we are collision resistant
+
 Ad 5 --> Having many servers handling traffic and many shards of mongodb which internally replicate data between
          shard our infrastructure is NSPOF
+
 Ad 6 --> Installing Check_MK monitoring and set sending email/sms on any serious warning and failure
 
 ## WHY MONGO?
