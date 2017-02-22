@@ -1,5 +1,3 @@
-import datetime
-
 from app.main import main
 from app.main.schema import RegisterUrlSchema, ShortLinkSchema
 from app.models import ShortLink

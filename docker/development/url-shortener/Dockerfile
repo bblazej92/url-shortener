@@ -17,3 +17,7 @@ RUN python3.5 -m pip install ujson==1.35
 RUN python3.5 -m pip install rauth==0.7.3
 RUN python3.5 -m pip install Flask-Login==0.4.0
 RUN python3.5 -m pip install freezegun==0.3.8
+RUN python3.5 -m pip install Flask-Login==0.4.0
+RUN python3.5 -m pip install pip-utils==0.6.0
+RUN python3.5 -m pip install rauth==0.7.3
+RUN python3.5 -m pip install docker-compose==1.11.1
