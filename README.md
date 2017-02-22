@@ -19,15 +19,49 @@ There can be a situation that user specified slug which is equal to generated on
 
 When user specify own slug (service requirements 2) we check if it already exists and if not save it else raise error.
 
-## ENDPOINTS:
+## REST API:
 
-1&2 --> /register_url
+Numbers refer to service requirement handled by endpoint
 
-3   --> /<slug>
+---
 
-4   --> /url_info/<slug>
+**REQUIREMENT:** 1&2
 
-5   --> /list_urls
+**ENDPOINT:** /register_url
+
+**METHOD:** POST
+
+**PARAMS:**
+
+- original_url (required)
+
+- slug (optional)
+
+---
+
+**REQUIREMENT:** 3
+
+**ENDPOINT:** /{slug}
+
+**METHOD:** GET
+
+---
+
+**REQUIREMENT:** 4
+
+**ENDPOINT:** /url_info/{slug}
+
+**METHOD:** GET
+
+---
+
+**REQUIREMENT:** 5
+
+**ENDPOINT:** /list_urls
+
+**METHOD:** GET
+
+---
 
 ## HOW IS PROJECT ORGANIZED:
 
