@@ -9,7 +9,6 @@ mkvirtualenv url -a . --python=/usr/bin/python3.4
 
 echo -e "${YELLOW}Installing requirements...${RESET}"
 pip3 install -r requirements.txt
-sudo pip install docker-compose==1.8.0
 
 echo -e "${YELLOW}Building docker - development environment...${RESET}"
 cd docker/development
