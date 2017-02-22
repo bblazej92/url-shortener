@@ -6,6 +6,5 @@ ujson==1.35
 pytest==3.0.6
 freezegun==0.3.8
 Flask-Login==0.4.0
-pip-utils==0.6.0
+pip-utils==0.0.6
 rauth==0.7.3
-docker-compose==1.11.1

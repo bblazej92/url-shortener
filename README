@@ -1,0 +1,23 @@
+
+SOLUTION:
+
+TODO
+
+
+
+Running development environment:
+
+./init_and_run_development.sh
+
+Requirements: Installed virtualenvwrapper, Docker version 1.10.0+, docker-compose
+What it does: It creates virtualenv, build essential docker containers, run service in detach mode
+              and run unit tests
+
+
+TODO:
+1. Deploy on AWS or Heroku
+2. Generate documentation using Sphinx
+3. Write tests to views in auth/views.py
+4. Finish TODOs left in code
+5. Add caching to GET views
+6. Create indexes to speed up querying mongo
