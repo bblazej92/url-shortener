@@ -2,7 +2,7 @@ import datetime
 from unittest.mock import patch
 
 import freezegun
-from app.models import ShortLink, User
+from app.models import ShortUrl, User
 from dateutil import parser
 from dateutil.tz import tzutc
 from utils.testing import ViewFunctionalTest
@@ -11,6 +11,7 @@ from utils.testing import ViewFunctionalTest
 # TODO: test that schema is called and login is required
 
 class TestRegisterUrlFunctional(ViewFunctionalTest):
+    ENDPOINT = '/v1/generate_short_url'
 
     def setUp(self):
         super(TestRegisterUrlFunctional, self).setUp()
@@ -27,12 +28,12 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
 
         url_data = dict(original_url='http://destination.pl')
 
-        response = self.client.post('/register_url', data=url_data)
+        response = self.client.post(self.ENDPOINT, data=url_data)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(response.json, dict(short_url='http://test.pl/mock_slug'))
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(response.json, dict(short_url='http://localhost:5001/mock_slug'))
 
-        short_links = ShortLink.objects()
+        short_links = ShortUrl.objects()
         self.assertEqual(len(short_links), 1)
 
         short_link = short_links[0]
@@ -46,12 +47,12 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
     def test_when_unique_slug_specified(self):
         url_data = dict(original_url='http://destination.pl', slug='test_slug')
 
-        response = self.client.post('/register_url', data=url_data)
+        response = self.client.post(self.ENDPOINT, data=url_data)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(response.json, dict(short_url='http://test.pl/test_slug'))
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(response.json, dict(short_url='http://localhost:5001/test_slug'))
 
-        short_links = ShortLink.objects()
+        short_links = ShortUrl.objects()
         self.assertEqual(len(short_links), 1)
 
         short_link = short_links[0]
@@ -64,13 +65,13 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
     def test_when_non_unique_slug_specified(self):
         new_user = User()
         new_user.save()
-        ShortLink(original_url='http://test.pl', slug='test_slug', user_id=str(new_user.id)).save()
+        ShortUrl(original_url='http://test.pl', slug='test_slug', user_id=str(new_user.id)).save()
         url_data = dict(original_url='http://destination.pl', slug='test_slug')
 
-        response = self.client.post('/register_url', data=url_data)
+        response = self.client.post(self.ENDPOINT, data=url_data)
 
         self.assertEqual(response.status_code, 500)
-        short_links = ShortLink.objects()
+        short_links = ShortUrl.objects()
         self.assertEqual(len(short_links), 1)
         short_link = short_links[0]
         self.assertEqual(short_link.original_url, 'http://test.pl')
@@ -83,6 +84,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
 
 
 class TestGetUrlFunctional(ViewFunctionalTest):
+    ENDPOINT_TEMPLATE = '/{}'
 
     def setUp(self):
         super(TestGetUrlFunctional, self).setUp()
@@ -91,30 +93,31 @@ class TestGetUrlFunctional(ViewFunctionalTest):
     def test_when_slug_not_in_db(self):
         slug = 'test'
 
-        response = self.client.get('/{}'.format(slug))
+        response = self.client.get(self.ENDPOINT_TEMPLATE.format(slug))
 
         self.assertEqual(response.status_code, 404)
 
     def test_when_slug_in_db(self):
         slug = 'test'
-        ShortLink(original_url='http://test.pl', slug=slug).save()
+        ShortUrl(original_url='http://test.pl', slug=slug).save()
 
-        response = self.client.get('/{}'.format(slug))
+        response = self.client.get(self.ENDPOINT_TEMPLATE.format(slug))
 
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json, dict(original_url='http://test.pl'))
 
     def test_when_duplicated_slug_in_db(self):
         slug = 'test'
-        ShortLink(original_url='http://test.pl', slug=slug).save()
-        ShortLink(original_url='http://test2.pl', slug=slug).save()
+        ShortUrl(original_url='http://test.pl', slug=slug).save()
+        ShortUrl(original_url='http://test2.pl', slug=slug).save()
 
-        response = self.client.get('/{}'.format(slug))
+        response = self.client.get(self.ENDPOINT_TEMPLATE.format(slug))
 
         self.assertEqual(response.status_code, 500)
 
 
 class TestGetUrlInfoFunctional(ViewFunctionalTest):
+    ENDPOINT_TEMPLATE = '/v1/url_info/{}'
 
     def setUp(self):
         super(TestGetUrlInfoFunctional, self).setUp()
@@ -127,16 +130,16 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
     def test_when_slug_not_in_db(self):
         slug = 'test'
 
-        response = self.client.get('/url_info/{}'.format(slug))
+        response = self.client.get(self.ENDPOINT_TEMPLATE.format(slug))
 
         self.assertEqual(response.status_code, 404)
 
     def test_when_duplicated_slug_in_db(self):
         slug = 'test'
-        ShortLink(original_url='http://test.pl', slug=slug, user_id=str(self.user.id)).save()
-        ShortLink(original_url='http://test2.pl', slug=slug, user_id=str(self.user.id)).save()
+        ShortUrl(original_url='http://test.pl', slug=slug, user_id=str(self.user.id)).save()
+        ShortUrl(original_url='http://test2.pl', slug=slug, user_id=str(self.user.id)).save()
 
-        response = self.client.get('/url_info/{}'.format(slug))
+        response = self.client.get(self.ENDPOINT_TEMPLATE.format(slug))
 
         self.assertEqual(response.status_code, 500)
 
@@ -144,22 +147,22 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
         other_user = User()
         other_user.save()
         slug = 'test'
-        ShortLink(original_url='http://test.pl', slug=slug, user_id=str(other_user.id)).save()
+        ShortUrl(original_url='http://test.pl', slug=slug, user_id=str(other_user.id)).save()
 
-        response = self.client.get('/url_info/{}'.format(slug))
+        response = self.client.get(self.ENDPOINT_TEMPLATE.format(slug))
 
         self.assertEqual(response.status_code, 401)
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     def test_when_slug_in_db_and_user_is_its_owner(self):
         slug = 'test'
-        ShortLink(
+        ShortUrl(
             original_url='http://test.pl',
             slug=slug,
             user_id=str(self.user.id),
         ).save()
 
-        response = self.client.get('/url_info/{}'.format(slug))
+        response = self.client.get(self.ENDPOINT_TEMPLATE.format(slug))
         response.json['created'] = parser.parse(response.json['created'])
 
         self.assertEqual(response.status_code, 200)
@@ -176,15 +179,16 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
         slug = 'test'
         url_data = dict(original_url='http://destination.pl', slug=slug)
 
-        self.client.post('/register_url', data=url_data)
+        self.client.post('/v1/generate_short_url', data=url_data)
         self.client.get('/{}'.format(slug))
         self.client.get('/{}'.format(slug))
 
-        short_link = ShortLink.objects.get(slug=slug)
+        short_link = ShortUrl.objects.get(slug=slug)
         self.assertEqual(short_link.access_counter, 2)
 
 
 class TestGetListOfUserUrlsFunctional(ViewFunctionalTest):
+    ENDPOINT = '/v1/list_urls'
 
     def setUp(self):
         super(TestGetListOfUserUrlsFunctional, self).setUp()
@@ -195,15 +199,15 @@ class TestGetListOfUserUrlsFunctional(ViewFunctionalTest):
             session['user_id'] = str(self.user.id)
 
     def test_when_user_has_no_url_created(self):
-        response = self.client.get('/list_urls')
+        response = self.client.get(self.ENDPOINT)
 
         self.assertEqual(response.json, {'URLs': []})
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     def test_when_user_has_one_url_created(self):
-        ShortLink(original_url='http://test.pl', slug='test', user_id=str(self.user.id)).save()
+        ShortUrl(original_url='http://test.pl', slug='test', user_id=str(self.user.id)).save()
 
-        response = self.client.get('/list_urls')
+        response = self.client.get(self.ENDPOINT)
 
         self.assertEqual(
             response.json,
@@ -219,10 +223,10 @@ class TestGetListOfUserUrlsFunctional(ViewFunctionalTest):
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     def test_when_user_has_many_urls_created(self):
-        ShortLink(original_url='http://test.pl', slug='test', user_id=str(self.user.id)).save()
-        ShortLink(original_url='http://test2.pl', slug='test2', user_id=str(self.user.id)).save()
+        ShortUrl(original_url='http://test.pl', slug='test', user_id=str(self.user.id)).save()
+        ShortUrl(original_url='http://test2.pl', slug='test2', user_id=str(self.user.id)).save()
 
-        response = self.client.get('/list_urls')
+        response = self.client.get(self.ENDPOINT)
 
         self.assertEqual(
             response.json,

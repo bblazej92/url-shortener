@@ -4,7 +4,7 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    URL_PREFIX = 'localhost:5000'
+    SERVER_NAME = 'localhost:5000'
     DEBUG = True
     SECRET_KEY = 'development_is_secret!'
     OAUTH_CREDENTIALS = {
@@ -16,7 +16,7 @@ class DevelopmentConfig(Config):
 
 
 class TestingConfig(Config):
-    URL_PREFIX = 'http://test.pl'
+    SERVER_NAME = 'localhost:5001'
     MONGODB_HOST = 'localhost'
     MONGODB_DB = 'test'
     SECRET_KEY = 'testing_is_secret!'

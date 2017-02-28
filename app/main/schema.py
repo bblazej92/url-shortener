@@ -26,7 +26,7 @@ class RegisterUrlSchema(ViewBaseSchema):
     )
 
 
-class ShortLinkSchema(ViewBaseSchema):
+class ShortUrlSchema(ViewBaseSchema):
     original_url = fields.Url(required=True)
     slug = fields.Str(required=True)
     created = fields.DateTime()

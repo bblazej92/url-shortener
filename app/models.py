@@ -3,7 +3,7 @@ from flask_login import UserMixin
 from . import db
 
 
-class ShortLink(db.Document):
+class ShortUrl(db.Document):
     slug = db.StringField(max_length=30)
     original_url = db.URLField(max_length=500)
     user_id = db.StringField()
