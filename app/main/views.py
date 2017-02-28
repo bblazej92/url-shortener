@@ -3,7 +3,7 @@ from http.client import CREATED
 from app.main import main
 from app.main.schema import RegisterUrlSchema, ShortUrlSchema
 from app.models import ShortUrl
-from flask import jsonify, request, logging, current_app as app
+from flask import jsonify, request, logging
 from flask import make_response
 from flask import url_for
 from flask_login import current_user, login_required
