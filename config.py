@@ -15,6 +15,17 @@ class DevelopmentConfig(Config):
     }
 
 
+class ProductionConfig(Config):
+    DEBUG = False
+    SECRET_KEY = 'production_is_secret!'  # TODO: change to environ var
+    OAUTH_CREDENTIALS = {  # TODO: change to environ vars
+        'facebook': {
+            'id': '1758312601153697',
+            'secret': '97178dc5fdb2425a11f93118bdf88227'
+        }
+    }
+
+
 class TestingConfig(Config):
     SERVER_NAME = 'localhost:5001'
     MONGODB_HOST = 'localhost'
@@ -26,6 +37,7 @@ class TestingConfig(Config):
 
 config = {
     'development': DevelopmentConfig,
+    'production': ProductionConfig,
     'testing': TestingConfig,
     'default': DevelopmentConfig
 }
