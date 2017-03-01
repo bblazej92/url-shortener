@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = _build
-GH_PAGES_SOURCES = docs
+GH_PAGES_SOURCES = docs app utils config.py
 
 # Internal variables.
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
@@ -23,12 +23,9 @@ html:
 
 .PHONY: gh-pages
 gh-pages:
-	git checkout gh-pages
-	rm -rf ${BUILDDIR}
-	git checkout master ../$(GH_PAGES_SOURCES)
-	git reset HEAD
+	cd .. && git checkout gh-pages && git checkout master $(GH_PAGES_SOURCES) && git reset HEAD
 	make html
 	mv -fv _build/html/* ../
-	rm -rf ../$(GH_PAGES_SOURCES)
+	cd .. && rm -rf $(GH_PAGES_SOURCES)
 	git add -A
 	git ci -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout master
