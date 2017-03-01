@@ -57,7 +57,7 @@ function update_docker_images {
     fi
     cd url-shortener/docker/production
     hash=`head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13 ; echo ''`
-    sed -e 's/!HASH!/${hash}/g'
+    sed -i "s/\!HASH\!/${hash}/g" url-shortener/Dockerfile
     docker-compose build
 EOF
 }

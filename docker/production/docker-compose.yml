@@ -6,9 +6,9 @@ services:
       - LANG=C.UTF-8
     build: url-shortener/
     working_dir: "/opt/url-shortener"
-    command: bash -c "python run.py --port 5000 -c production"
+    command: bash -c "python run.py --port 80 -c production"
     ports:
-      - "5000:5000"
+      - "80:80"
     links:
       - db
   db:
