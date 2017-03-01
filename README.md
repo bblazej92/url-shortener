@@ -21,47 +21,7 @@ When user specify own slug (service requirements 2) we check if it already exist
 
 ## REST API:
 
-Numbers refer to service requirement handled by endpoint
-
----
-
-**REQUIREMENT:** 1&2
-
-**ENDPOINT:** /register_url
-
-**METHOD:** POST
-
-**PARAMS:**
-
-- original_url (required)
-
-- slug (optional)
-
----
-
-**REQUIREMENT:** 3
-
-**ENDPOINT:** /{slug}
-
-**METHOD:** GET
-
----
-
-**REQUIREMENT:** 4
-
-**ENDPOINT:** /url_info/{slug}
-
-**METHOD:** GET
-
----
-
-**REQUIREMENT:** 5
-
-**ENDPOINT:** /list_urls
-
-**METHOD:** GET
-
----
+[REST API documentation](https://bblazej92.github.io/url-shortener/)
 
 ## HOW IS PROJECT ORGANIZED:
 
