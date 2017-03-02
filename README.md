@@ -23,6 +23,8 @@ When user specify own slug (service requirements 2) we check if it already exist
 
 [REST API documentation](https://bblazej92.github.io/url-shortener/)
 
+[url-shortener available online](http://52.59.215.242/)
+
 ## HOW IS PROJECT ORGANIZED:
 
 url-shortener:
@@ -79,12 +81,13 @@ What it does: It creates virtualenv, build essential docker containers, run serv
 
 
 ## TODO:
-1. Write docstrings and generate documentation using Sphinx
-2. Block possibility go generate slug the same as other view endpoint
-3. Deploy on AWS or Heroku by adding production docker-compose
-4. Write tests to views in auth/views.py
-5. Finish TODOs left in code
-6. Add caching to GET views
-7. Create indexes to speed up querying mongo
-8. Add test coverage info
-9. Small refactor
+1. Write docstrings and generate documentation using Sphinx, move all description to gh-pages.
+2. Write tests to views in auth/views.py
+3. Finish TODOs left in code
+4. Add caching to GET views
+5. Create indexes to speed up querying mongo
+6. Add test coverage info
+7. Small refactor
+8. Add script to deploy on Heroku
+9. Better deployment option for standalone server
+10. Keep secrets using docker-secret

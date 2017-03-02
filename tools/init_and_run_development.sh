@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO: use code from deploy.sh 
+
 YELLOW='\033[1;33m'
 RESET='\033[0m'
 
