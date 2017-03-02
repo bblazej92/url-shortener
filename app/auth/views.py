@@ -16,13 +16,13 @@ def load_user(user_id):
     return User.objects(id=user_id).first()
 
 
-@auth.route('/oauth/logout')
+@auth.route('/v1/logout')
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
 
 
-@auth.route('/oauth/authorize')
+@auth.route('/v1/authorize')
 def oauth_authorize():
     if not current_user.is_anonymous:
         return redirect(url_for('main.index'))
@@ -30,7 +30,7 @@ def oauth_authorize():
     return oauth.authorize()
 
 
-@auth.route('/oauth/callback')
+@auth.route('/v1/callback')
 def oauth_callback():
     if not current_user.is_anonymous:
         return redirect(url_for('main.index'))

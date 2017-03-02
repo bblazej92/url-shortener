@@ -71,7 +71,6 @@ function restart_production {
 EOF
 }
 
-
 function deploy {
     cecho "Deploying new version of code..."
     update_source_code
