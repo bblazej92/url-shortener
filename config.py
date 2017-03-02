@@ -1,3 +1,5 @@
+import os
+
 
 class Config:
     MONGODB_HOST = 'db'
@@ -17,11 +19,11 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    SECRET_KEY = 'production_is_secret!'  # TODO: change to environ var
-    OAUTH_CREDENTIALS = {  # TODO: change to environ vars
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    OAUTH_CREDENTIALS = {
         'facebook': {
-            'id': '1758312601153697',
-            'secret': '97178dc5fdb2425a11f93118bdf88227'
+            'id': '1253607668008838',
+            'secret': os.environ.get('FB_SECRET')
         }
     }
 

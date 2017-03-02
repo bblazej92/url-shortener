@@ -55,9 +55,9 @@ function update_docker_images {
         echo "Installing docker-compose..."
         pip install docker-compose==1.8.0
     fi
-    cd url-shortener/docker/production
+    cd /home/${USER}/url-shortener/docker/production
     hash=`head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13 ; echo ''`
-    sed -i "s/\!HASH\!/${hash}/g" url-shortener/Dockerfile
+    sed -i "s/\!HASH\!/\${hash}/g" url-shortener/Dockerfile
     docker-compose build
 EOF
 }

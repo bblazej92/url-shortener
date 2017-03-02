@@ -4,6 +4,8 @@ services:
     environment:
       - LC_ALL=C.UTF-8
       - LANG=C.UTF-8
+    env_file:
+      - /home/ubuntu/.secret/web-variables.env
     build: url-shortener/
     working_dir: "/opt/url-shortener"
     command: bash -c "python run.py --port 80 -c production"
