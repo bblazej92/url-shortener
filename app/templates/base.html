@@ -1,0 +1,37 @@
+{% extends "bootstrap/base.html" %}
+
+<!DOCTYPE html>
+<html lang="pl">
+  {%  block head %}
+    {{  super() }}
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Welcome on URL-shortener!</title>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cover.css') }}">
+  {% endblock %}
+
+  {%  block body %}
+    {{ super() }}
+    <div class="site-wrapper" style="">
+      <div class="site-wrapper-inner">
+        <div class="cover-container">
+          <div class="masthead clearfix">
+            <div class="inner">
+              <h3 class="masthead-brand">URL shortener</h3>
+              <nav>
+                <ul class="nav masthead-nav">
+                  <li class="active"><a href="#">Home</a></li>
+                  <li><a href="#">About</a></li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+          {% block form %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+  {% endblock %}
+</html>

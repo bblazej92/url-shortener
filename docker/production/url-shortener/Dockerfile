@@ -20,6 +20,7 @@ RUN python3.5 -m pip install freezegun==0.3.8
 RUN python3.5 -m pip install Flask-Login==0.4.0
 RUN python3.5 -m pip install pip-utils==0.0.6
 RUN python3.5 -m pip install rauth==0.7.3
+RUN python3.5 -m pip install Flask-Bootstrap==3.3.7.1
 
 RUN apt-get -yq install git
 RUN apt-get -yq install vim

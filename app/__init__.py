@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
 from flask_mongoengine import MongoEngine
 from config import config
@@ -14,6 +15,9 @@ def create_app(config_name):
 
     lm.init_app(app)
     db.init_app(app)
+
+    bootstrap = Bootstrap()
+    bootstrap.init_app(app)
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)

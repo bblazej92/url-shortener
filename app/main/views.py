@@ -5,6 +5,7 @@ from app.main.schema import RegisterUrlSchema, ShortUrlSchema
 from app.models import ShortUrl
 from flask import jsonify, request, logging
 from flask import make_response
+from flask import render_template
 from flask import url_for
 from flask_login import current_user, login_required
 from mongoengine import DoesNotExist, MultipleObjectsReturned
@@ -17,7 +18,7 @@ log = logging.getLogger(__name__)
 
 @main.route('/')
 def index():
-    return 'Welcome on url-shortener!'
+    return render_template('index.html')
 
 
 @main.route('/v1/generate_short_url', methods=['POST'])
