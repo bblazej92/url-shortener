@@ -5,10 +5,9 @@ import freezegun
 from app.models import ShortUrl, User
 from dateutil import parser
 from dateutil.tz import tzutc
-from utils.testing import ViewFunctionalTest
+from flask import url_for
+from utils.testing import ViewFunctionalTest, login_user
 
-
-# TODO: test that schema is called and login is required
 
 class TestRegisterUrlFunctional(ViewFunctionalTest):
     ENDPOINT = '/v1/generate_short_url'
@@ -16,14 +15,31 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
     def setUp(self):
         super(TestRegisterUrlFunctional, self).setUp()
         patch('app.main.views.log').start()
+        patch('utils.schema.base.log').start()
         self.user = User()
         self.user.save()
-        with self.client.session_transaction() as session:
-            session['user_id'] = str(self.user.id)
+
+    def test_login_required(self):
+        url_data = dict(original_url='http://destination.pl')
+
+        response = self.client.post(self.ENDPOINT, data=url_data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(url_for('auth.oauth_authorize'), response.headers['Location'])
+
+    def test_schema_validation_applied(self):
+        login_user(self.client, self.user)
+        url_data = dict(original_url='incorrect_url.pl')
+
+        response = self.client.post(self.ENDPOINT, data=url_data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'SchemaValidationErrors', response.data)
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     @patch('app.main.views.hex_to_base64')
     def test_when_only_original_url_specified(self, hex_to_base64_mock,):
+        login_user(self.client, self.user)
         hex_to_base64_mock.return_value = 'mock_slug'
 
         url_data = dict(original_url='http://destination.pl')
@@ -45,6 +61,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     def test_when_unique_slug_specified(self):
+        login_user(self.client, self.user)
         url_data = dict(original_url='http://destination.pl', slug='test_slug')
 
         response = self.client.post(self.ENDPOINT, data=url_data)
@@ -63,6 +80,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertEqual(short_link.created, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
 
     def test_when_non_unique_slug_specified(self):
+        login_user(self.client, self.user)
         new_user = User()
         new_user.save()
         ShortUrl(original_url='http://test.pl', slug='test_slug', user_id=str(new_user.id)).save()
@@ -78,7 +96,7 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertEqual(short_link.user_id, str(new_user.id))
         self.assertEqual(short_link.slug, 'test_slug')
 
-    def test_if_slug_generated_from_object_id_was_added_as_custom_slug_earlier(self):
+    def test_when_slug_generated_from_object_id_was_added_as_custom_slug_earlier(self):
         # TODO
         pass
 
@@ -124,10 +142,17 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
         patch('app.main.views.log').start()
         self.user = User()
         self.user.save()
-        with self.client.session_transaction() as session:
-            session['user_id'] = str(self.user.id)
+
+    def test_login_required(self):
+        slug = 'test'
+
+        response = self.client.get(self.ENDPOINT_TEMPLATE.format(slug))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(url_for('auth.oauth_authorize'), response.headers['Location'])
 
     def test_when_slug_not_in_db(self):
+        login_user(self.client, self.user)
         slug = 'test'
 
         response = self.client.get(self.ENDPOINT_TEMPLATE.format(slug))
@@ -135,6 +160,7 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
         self.assertEqual(response.status_code, 404)
 
     def test_when_duplicated_slug_in_db(self):
+        login_user(self.client, self.user)
         slug = 'test'
         ShortUrl(original_url='http://test.pl', slug=slug, user_id=str(self.user.id)).save()
         ShortUrl(original_url='http://test2.pl', slug=slug, user_id=str(self.user.id)).save()
@@ -144,6 +170,7 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
         self.assertEqual(response.status_code, 500)
 
     def test_when_slug_in_db_but_other_user_is_slug_owner(self):
+        login_user(self.client, self.user)
         other_user = User()
         other_user.save()
         slug = 'test'
@@ -155,6 +182,7 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     def test_when_slug_in_db_and_user_is_its_owner(self):
+        login_user(self.client, self.user)
         slug = 'test'
         ShortUrl(
             original_url='http://test.pl',
@@ -176,6 +204,7 @@ class TestGetUrlInfoFunctional(ViewFunctionalTest):
         )
 
     def test_access_counter_increases(self):
+        login_user(self.client, self.user)
         slug = 'test'
         url_data = dict(original_url='http://destination.pl', slug=slug)
 
@@ -195,16 +224,22 @@ class TestGetListOfUserUrlsFunctional(ViewFunctionalTest):
         patch('app.main.views.log').start()
         self.user = User()
         self.user.save()
-        with self.client.session_transaction() as session:
-            session['user_id'] = str(self.user.id)
+
+    def test_login_required(self):
+        response = self.client.get(self.ENDPOINT)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(url_for('auth.oauth_authorize'), response.headers['Location'])
 
     def test_when_user_has_no_url_created(self):
+        login_user(self.client, self.user)
         response = self.client.get(self.ENDPOINT)
 
         self.assertEqual(response.json, {'URLs': []})
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     def test_when_user_has_one_url_created(self):
+        login_user(self.client, self.user)
         ShortUrl(original_url='http://test.pl', slug='test', user_id=str(self.user.id)).save()
 
         response = self.client.get(self.ENDPOINT)
@@ -223,6 +258,7 @@ class TestGetListOfUserUrlsFunctional(ViewFunctionalTest):
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
     def test_when_user_has_many_urls_created(self):
+        login_user(self.client, self.user)
         ShortUrl(original_url='http://test.pl', slug='test', user_id=str(self.user.id)).save()
         ShortUrl(original_url='http://test2.pl', slug='test2', user_id=str(self.user.id)).save()
 

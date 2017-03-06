@@ -33,7 +33,6 @@ class TestingConfig(Config):
     MONGODB_HOST = 'localhost'
     MONGODB_DB = 'test'
     SECRET_KEY = 'testing_is_secret!'
-    LOGIN_DISABLED = True
     testing = True
 
 

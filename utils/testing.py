@@ -9,6 +9,11 @@ from werkzeug.wrappers import BaseResponse
 from app import create_app
 
 
+def login_user(client, user):
+    with client.session_transaction() as session:
+        session['user_id'] = str(user.id)
+
+
 class JsonResponse(BaseResponse):
 
     @cached_property
