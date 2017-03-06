@@ -17,9 +17,7 @@ class TestRegisterUrlSchema(unittest.TestCase):
 
         self.assertDictEqual(
             exception_cm.exception.description,
-            {
-                'original_url': ['Missing data for required field.'],
-            }
+            {'SchemaValidationErrors': {'original_url': ['Missing data for required field.']}}
         )
 
     def test_raises_when_original_url_is_too_long(self):
@@ -31,9 +29,7 @@ class TestRegisterUrlSchema(unittest.TestCase):
 
         self.assertDictEqual(
             exception_cm.exception.description,
-            {
-                'original_url': ['original_url can have maximum 500 characters']
-            }
+            {'SchemaValidationErrors': {'original_url': ['original_url can have maximum 500 characters']}}
         )
 
     def test_raises_when_slug_is_empty(self):
@@ -46,9 +42,7 @@ class TestRegisterUrlSchema(unittest.TestCase):
 
         self.assertDictEqual(
             exception_cm.exception.description,
-            {
-                'slug': ['slug length must be between 1 and 30']
-            }
+            {'SchemaValidationErrors': {'slug': ['slug length must be between 1 and 30']}}
         )
 
     def test_raises_when_slug_is_too_long(self):
@@ -61,9 +55,7 @@ class TestRegisterUrlSchema(unittest.TestCase):
 
         self.assertDictEqual(
             exception_cm.exception.description,
-            {
-                'slug': ['slug length must be between 1 and 30']
-            }
+            {'SchemaValidationErrors': {'slug': ['slug length must be between 1 and 30']}}
         )
 
     def test_raises_when_slug_contains_forbidden_special_characters(self):
@@ -76,9 +68,7 @@ class TestRegisterUrlSchema(unittest.TestCase):
 
         self.assertDictEqual(
             exception_cm.exception.description,
-            {
-                'slug': ['slug contains special characters different than _ and -']
-            }
+            {'SchemaValidationErrors': {'slug': ['slug contains special characters different than _ and -']}}
         )
 
     def test_whole_schema_without_slug(self):
