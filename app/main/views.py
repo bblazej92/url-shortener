@@ -5,6 +5,7 @@ from app.main.schema import RegisterUrlSchema, ShortUrlSchema
 from app.models import ShortUrl
 from flask import jsonify, request, logging
 from flask import make_response
+from flask import redirect
 from flask import render_template
 from flask import url_for
 from flask_login import current_user, login_required
@@ -63,22 +64,19 @@ def get_url(slug):
     """
     .. :quickref: ShortUrl; Get original url.
 
-    Return original url for given slug.
+    Redirect to original url for given slug.
 
     :param slug: short string which was created during generation short url
 
-    :resheader Content-Type: application/json
-    :>json string original_url: url for which short url was created
-
-    :status 200: ShortUrl for given slug found
+    :status 302: ShortUrl for given slug found and redirect is performed
     :status 404: ShortUrl for given slug not found
     :status 500: multiple ShortUrls for given slug found
     """
     try:
+        # FIXME: update can raise different exceptions
+        ShortUrl.objects(slug=slug).update(inc__access_counter=1)
         short_link = ShortUrl.objects.get(slug=slug)
-        short_link.access_counter += 1
-        short_link.save()
-        return jsonify(dict(original_url=short_link.original_url))
+        return redirect(short_link.original_url)
     except DoesNotExist as e:
         log.error(e)
         raise NotFound()

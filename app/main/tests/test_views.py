@@ -132,12 +132,14 @@ class TestGetUrlFunctional(ViewFunctionalTest):
 
     def test_when_slug_in_db(self):
         slug = 'test'
-        ShortUrl(original_url='http://test.pl', slug=slug).save()
+        ShortUrl(original_url='http://test.pl', slug=slug, access_counter=0).save()
 
         response = self.client.get(self.ENDPOINT_TEMPLATE.format(slug))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(response.json, dict(original_url='http://test.pl'))
+        short_url = ShortUrl.objects.get(slug=slug)
+        self.assertEqual(short_url.access_counter, 1)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['location'], 'http://test.pl')
 
     def test_when_duplicated_slug_in_db(self):
         slug = 'test'
