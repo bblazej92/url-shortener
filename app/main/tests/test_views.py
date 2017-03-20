@@ -37,24 +37,45 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertIn(b'SchemaValidationErrors', response.data)
 
     @freezegun.freeze_time('2017-02-01T12:00:00')
-    @patch('app.main.views.hex_to_base64')
-    def test_when_only_original_url_specified(self, hex_to_base64_mock,):
+    @patch('app.main.views.generate_random_slug')
+    def test_when_only_original_url_specified_and_generated_slug_is_unique(self, generate_random_slug_mock):
         login_user(self.client, self.user)
-        hex_to_base64_mock.return_value = 'mock_slug'
-
+        generate_random_slug_mock.return_value = 'test_slug'
         url_data = dict(original_url='http://destination.pl')
 
         response = self.client.post(self.ENDPOINT, data=url_data)
 
         self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json, dict(short_url='http://localhost:5001/mock_slug'))
+        self.assertDictEqual(response.json, dict(short_url='http://localhost:5001/test_slug'))
+        short_links = ShortUrl.objects()
+        self.assertEqual(len(short_links), 1)
+        short_link = short_links[0]
+        self.assertEqual(short_link.original_url, 'http://destination.pl')
+        self.assertEqual(short_link.slug, 'test_slug')
+        self.assertEqual(short_link.user_id, str(self.user.id))
+        self.assertEqual(short_link.access_counter, 0)
+        self.assertEqual(short_link.created, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
+
+    @freezegun.freeze_time('2017-02-01T12:00:00')
+    @patch('app.main.views.generate_random_slug')
+    def test_when_only_original_url_specified_and_generated_slug_already_exist(self, generate_random_slug_mock):
+        login_user(self.client, self.user)
+        generate_random_slug_mock.side_effect = ['test_slug', 'new_slug']
+        ShortUrl(original_url='http://test.pl', slug='test_slug').save()
+        url_data = dict(original_url='http://destination.pl')
 
         short_links = ShortUrl.objects()
         self.assertEqual(len(short_links), 1)
 
+        response = self.client.post(self.ENDPOINT, data=url_data)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(response.json, dict(short_url='http://localhost:5001/new_slug'))
+        short_links = ShortUrl.objects(slug__ne='test_slug')
+        self.assertEqual(len(short_links), 1)
         short_link = short_links[0]
         self.assertEqual(short_link.original_url, 'http://destination.pl')
-        self.assertEqual(short_link.slug, 'mock_slug')
+        self.assertEqual(short_link.slug, 'new_slug')
         self.assertEqual(short_link.user_id, str(self.user.id))
         self.assertEqual(short_link.access_counter, 0)
         self.assertEqual(short_link.created, datetime.datetime(2017, 2, 1, 12, 0, tzinfo=tzutc()))
@@ -68,10 +89,8 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
 
         self.assertEqual(response.status_code, 201)
         self.assertDictEqual(response.json, dict(short_url='http://localhost:5001/test_slug'))
-
         short_links = ShortUrl.objects()
         self.assertEqual(len(short_links), 1)
-
         short_link = short_links[0]
         self.assertEqual(short_link.original_url, 'http://destination.pl')
         self.assertEqual(short_link.slug, 'test_slug')
@@ -95,10 +114,6 @@ class TestRegisterUrlFunctional(ViewFunctionalTest):
         self.assertEqual(short_link.original_url, 'http://test.pl')
         self.assertEqual(short_link.user_id, str(new_user.id))
         self.assertEqual(short_link.slug, 'test_slug')
-
-    def test_when_slug_generated_from_object_id_was_added_as_custom_slug_earlier(self):
-        # TODO
-        pass
 
 
 class TestGetUrlFunctional(ViewFunctionalTest):

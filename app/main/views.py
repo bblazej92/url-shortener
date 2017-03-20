@@ -9,8 +9,8 @@ from flask import render_template
 from flask import url_for
 from flask_login import current_user, login_required
 from mongoengine import DoesNotExist, MultipleObjectsReturned
-from utils.converters import hex_to_base64
 from utils.exceptions import SlugAlreadyExistsException
+from utils.helpers import generate_random_slug
 from werkzeug.exceptions import NotFound, InternalServerError, Unauthorized
 
 log = logging.getLogger(__name__)
@@ -41,22 +41,20 @@ def generate_short_url():
     """
     url_data = RegisterUrlSchema().load(request.get_json()).data
     url_data['user_id'] = str(current_user.id)
-    url = ShortUrl(**url_data)
+    short_url_obj = ShortUrl(**url_data)
 
     if 'slug' in url_data:
-        if ShortUrl.objects(slug=url.slug):
+        if ShortUrl.objects(slug=short_url_obj.slug):
             log.error('Slug already exists in database')
             raise SlugAlreadyExistsException()
     else:
-        # save to generate objectId
-        url.save()
-        while ShortUrl.objects(slug=hex_to_base64(str(url.id))):
-            url.delete()
-            url = ShortUrl(**url_data)
-            url.save()
-        url.slug = hex_to_base64(str(url.id))
-    url.save()
-    short_url = url_for('main.get_url', slug=url.slug, _external=True)
+        slug = generate_random_slug(length=6)
+        while ShortUrl.objects(slug=slug):
+            log.warning('Slug duplicate detected! - {}'.format(slug))
+            slug = generate_random_slug(length=6)
+        short_url_obj.slug = slug
+    short_url_obj.save()
+    short_url = url_for('main.get_url', slug=short_url_obj.slug, _external=True)
     return make_response(jsonify(dict(short_url=short_url)), CREATED)
 
 
