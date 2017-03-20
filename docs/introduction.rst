@@ -20,11 +20,10 @@ Service requirements
 Solution
 --------
 
-Slug is generated using mongodb objectID - because this objectID is unique we encode it with base64 (with replace of last 2 codes) and has as a result collision-resistant slug.
-ObjectId has 24 characters in hex encoding and thanks to base64 we have 16 characters long slugs.
-There can be a situation that user specified slug which is equal to generated one from objectID (extremely rare) so firstly we save object in db then check if slug generated from this id not exist and save slug if is unique else keep creating new object till we have unique slug.
-
-When user specify own slug (service requirements 2) we check if it already exists and if not save it else raise error.
+Slug is generated doing random choice for each of 6 characters from set A-Za-z0-9 what gives us ~57 billions unique
+slugs and high collision-resistance. Because of possibility of collision if custom slug was not specified we generate
+random slug till we have unique one. When user specify own slug (service requirements 2) we check if it already exists
+and if not save it else raise error.
 
 
 Scaling requirements
@@ -54,11 +53,11 @@ Satisfying scaling requirements
 #. Using algorithm described in Solution we are collision resistant
 #. Having many servers handling traffic and many shards of mongodb which internally replicate data between shard our infrastructure is NSPOF
 #. Installing Check_MK monitoring and set sending email/sms on any serious warning and failure
-
+#. Monitoring of response time for views
 
 Why mongo?
 ----------
 
 According to CAP theorem we can have 2 of 3: Consistency, Availability, Partition Tolerance
-I think that consistency in more important than availability in this service and mongodb has both
+I think that consistency is more important than availability in this service and mongodb has both
 consistency and partition tolerance. What is more mongodb is stable and widely-used db.
