@@ -3,5 +3,3 @@
 
 ## Documentation:
 [documentation](https://bblazej92.github.io/url-shortener/)
-
-[url-shortener available online](http://52.59.215.242/)
