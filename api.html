@@ -155,19 +155,23 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>ShortUrl</td>
+<tr class="row-even"><td>&nbsp;</td>
+<td><a class="reference external" href="#get--static-bootstrap-(path-filename)">GET /static/bootstrap/(path:filename)</a></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>ShortUrl</td>
 <td><a class="reference external" href="#post--v1-generate_short_url">POST /v1/generate_short_url</a></td>
 <td>Generate short url.</td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-even"><td>&nbsp;</td>
 <td><a class="reference external" href="#get--v1-list_urls">GET /v1/list_urls</a></td>
 <td>Get info about user`s short urls.</td>
 </tr>
-<tr class="row-even"><td>&nbsp;</td>
+<tr class="row-odd"><td>&nbsp;</td>
 <td><a class="reference external" href="#get--v1-url_info-(slug)">GET /v1/url_info/(slug)</a></td>
 <td>Get info about short url.</td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-even"><td>&nbsp;</td>
 <td><a class="reference external" href="#get--(slug)">GET /(slug)</a></td>
 <td>Get original url.</td>
 </tr>
@@ -249,6 +253,16 @@
 </dd></dl>
 
 <dl class="get">
+<dt id="get--static-bootstrap-(path-filename)">
+<code class="descname">GET </code><code class="descname">/static/bootstrap/</code><span class="sig-paren">(</span><em class="property">path: </em><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#get--static-bootstrap-(path-filename)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function used internally to send static files from the static
+folder to the browser.</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 0.5.</span></p>
+</div>
+</dd></dl>
+
+<dl class="get">
 <dt id="get--v1-url_info-(slug)">
 <code class="descname">GET </code><code class="descname">/v1/url_info/</code><span class="sig-paren">(</span><em>slug</em><span class="sig-paren">)</span><a class="headerlink" href="#get--v1-url_info-(slug)" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return details about short url by slug.</p>
@@ -289,7 +303,7 @@
 <dl class="get">
 <dt id="get--(slug)">
 <code class="descname">GET </code><code class="descname">/</code><span class="sig-paren">(</span><em>slug</em><span class="sig-paren">)</span><a class="headerlink" href="#get--(slug)" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return original url for given slug.</p>
+<dd><p>Redirect to original url for given slug.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -299,20 +313,8 @@
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Response Headers:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
-<li><a class="reference external" href="http://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> &#8211; application/json</li>
-</ul>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
-<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
-<li><strong>original_url</strong> (<em>string</em>) &#8211; url for which short url was created</li>
-</ul>
-</td>
-</tr>
 <tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; ShortUrl for given slug found</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.3">302 Found</a> &#8211; ShortUrl for given slug found and redirect is performed</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; ShortUrl for given slug not found</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> &#8211; multiple ShortUrls for given slug found</li>
 </ul>
